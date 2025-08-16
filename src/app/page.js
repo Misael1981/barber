@@ -11,6 +11,11 @@ import BarberShopItem from "./_components/BarberShopItem"
 
 const Home = async () => {
   const barberShops = await db.barbershop.findMany({})
+  const popularBarberShops = await db.barbershop.findMany({
+    orderBy: {
+      name: "desc",
+    },
+  })
   return (
     <div>
       <Header />
@@ -22,6 +27,53 @@ const Home = async () => {
           <Input placeholder="Faça sua busca..." />
           <Button>
             <SearchIcon />
+          </Button>
+        </div>
+
+        <div className="mt-6 flex gap-3 overflow-auto [&::-webkit-scrollbar]:hidden">
+          <Button className="gap-2" variant="secondary">
+            <Image
+              src="/cabelo.svg"
+              width={16}
+              height={16}
+              alt="Uma tesourinha bonitinha, tinha que ver que coisinha mais linda"
+            />
+            Cabelo
+          </Button>
+          <Button className="gap-2" variant="secondary">
+            <Image src="/barba.svg" width={16} height={16} alt="Barba" />
+            Barba
+          </Button>
+          <Button className="gap-2" variant="secondary">
+            <Image
+              src="/acabamento.svg"
+              width={16}
+              height={16}
+              alt="Uma navalhinha bonitinha, tinha que ver que coisinha mais linda"
+            />
+            Acabamento
+          </Button>
+          <Button className="gap-2" variant="secondary">
+            <Image
+              src="/cabelo.svg"
+              width={16}
+              height={16}
+              alt="Uma tesourinha bonitinha, tinha que ver que coisinha mais linda"
+            />
+            Cabelo
+          </Button>
+          <Button className="gap-2" variant="secondary">
+            <Image src="/barba.svg" width={16} height={16} alt="Barba" />
+            Barba
+          </Button>
+          <Button className="gap-2" variant="secondary">
+            <Image
+              src="/acabamento.svg"
+              width={16}
+              height={16}
+              alt="Uma navalhinha bonitinha, tinha que ver que coisinha mais linda"
+            />
+            Acabamento
           </Button>
         </div>
 
@@ -65,7 +117,25 @@ const Home = async () => {
             <BarberShopItem key={barberShop.id} barberShop={barberShop} />
           ))}
         </div>
+
+        <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+          Populares
+        </h2>
+        <div className="flex gap-4 overflow-auto [&::-webkit-scrollbar]:hidden">
+          {popularBarberShops.map((barberShop) => (
+            <BarberShopItem key={barberShop.id} barberShop={barberShop} />
+          ))}
+        </div>
       </div>
+      <footer>
+        <Card>
+          <CardContent className="px-5 py-0">
+            <p className="text-sm text-gray-400">
+              © 2025 Copyright <span className="font-bold">FSW Barber</span>
+            </p>
+          </CardContent>
+        </Card>
+      </footer>
     </div>
   )
 }
