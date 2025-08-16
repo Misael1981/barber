@@ -3,6 +3,7 @@ import { Card, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 import { StarIcon } from "lucide-react"
+import Link from "next/link"
 
 const BarberShopItem = ({ barberShop }) => {
   return (
@@ -28,9 +29,11 @@ const BarberShopItem = ({ barberShop }) => {
 
           <p className="truncate text-sm text-gray-400">{barberShop.address}</p>
 
-          <Button variant="secondary" className="mt-3 w-full">
-            Reservar
-          </Button>
+          <Link href={`/barbershops/${barberShop.id}`}>
+            <Button variant="secondary" className="mt-3 w-full">
+              Reservar
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
