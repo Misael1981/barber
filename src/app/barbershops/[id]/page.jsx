@@ -1,10 +1,10 @@
 import { db } from "../../_lib/prisma"
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { Card, CardContent } from "../../_components/ui/card"
-import { Badge } from "../../_components/ui/badge"
-import { StarIcon } from "lucide-react"
-import Header from "../../_components/Header"
+import { Button } from "@/app/_components/ui/button"
+import { ChevronLeftIcon, MapPinIcon, MenuIcon, StarIcon } from "lucide-react"
+import Link from "next/link"
+import ServiceItem from "@/app/_components/ServiceItem"
 
 const BarbershopPage = async ({ params }) => {
   const barbershop = await db.barbershop.findUnique({
@@ -22,64 +22,63 @@ const BarbershopPage = async ({ params }) => {
 
   return (
     <div>
-      <Header />
-      <div className="p-5">
-        <div className="relative h-[250px] w-full">
-          <Image
-            fill
-            className="rounded-2xl object-cover"
-            src={barbershop.imageUrl}
-            alt={barbershop.name}
-          />
-        </div>
-        
-        <div className="mt-4">
-          <h1 className="text-xl font-bold">{barbershop.name}</h1>
-          <div className="mt-2 flex items-center gap-2">
-            <Badge className="space-x-1" variant="secondary">
-              <StarIcon size={12} className="fill-primary text-primary" />
-              <p className="text-xs font-semibold">5.0</p>
-            </Badge>
-            <p className="text-sm text-gray-400">{barbershop.address}</p>
-          </div>
-          
-          <div className="mt-4">
-            <p className="text-sm text-gray-600">{barbershop.description}</p>
-          </div>
+      {/* Imagem */}
+      <div className="relative h-[250px] w-full">
+        <Image
+          alt={barbershop.name}
+          src={barbershop?.imageUrl}
+          fill
+          className="object-cover"
+        />
+        <Button
+          size="icon"
+          variant="secondary"
+          className="absolute left-4 top-4"
+          asChild
+        >
+          <Link href="/">
+            <ChevronLeftIcon />
+          </Link>
+        </Button>
+        <Button
+          size="icon"
+          variant="secondary"
+          className="absolute right-4 top-4"
+        >
+          <MenuIcon />
+        </Button>
+      </div>
 
-          <div className="mt-6">
-            <h2 className="mb-3 text-xs font-bold uppercase text-gray-400">
-              Serviços
-            </h2>
-            <div className="space-y-3">
-              {barbershop.services.map((service) => (
-                <Card key={service.id}>
-                  <CardContent className="flex items-center gap-3 p-3">
-                    <div className="relative h-[110px] w-[110px]">
-                      <Image
-                        fill
-                        className="rounded-lg object-cover"
-                        src={service.imageUrl}
-                        alt={service.name}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{service.name}</h3>
-                      <p className="text-sm text-gray-400">{service.description}</p>
-                      <div className="mt-2 flex items-center justify-between">
-                        <p className="text-sm font-bold text-primary">
-                          {Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          }).format(Number(service.price))}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+      {/* Nome, endereço e avaliação */}
+      <div className="border-b border-solid p-5">
+        <h1 className="mb-6 text-xl font-bold">{barbershop.name}</h1>
+        <div className="mb-2 flex items-center gap-1">
+          <MapPinIcon className="gap-1 text-primary" size={18} />
+          <p className="text-sm">{barbershop?.address}</p>
+        </div>
+        <div className="flex items-center gap-1">
+          <StarIcon className="gap-1 fill-primary text-primary" size={18} />
+          <p className="text-sm">5.0 (499 avaliações)</p>
+        </div>
+      </div>
+
+      {/* Sobre nós */}
+      <div className="border-b border-solid p-5">
+        <h2 className="mb-2 text-xs font-bold uppercase text-gray-400">
+          Sobre nós
+        </h2>
+        <p className="text-justify text-sm">{barbershop?.description}</p>
+      </div>
+
+      {/* Serviços */}
+      <div className="space-y-3 p-5">
+        <h2 className="mb-3 text-xs font-bold uppercase text-gray-400">
+          Serviços
+        </h2>
+        <div className="space-y-3">
+          {barbershop.services.map((service) => (
+            <ServiceItem key={service.id} service={service} />
+          ))}
         </div>
       </div>
     </div>
