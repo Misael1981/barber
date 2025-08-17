@@ -2,14 +2,7 @@ import { db } from "../../_lib/prisma"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/app/_components/ui/button"
-import {
-  ChevronLeftIcon,
-  MapPinIcon,
-  MenuIcon,
-  PhoneIcon,
-  Smartphone,
-  StarIcon,
-} from "lucide-react"
+import { ChevronLeftIcon, MapPinIcon, MenuIcon, StarIcon } from "lucide-react"
 import Link from "next/link"
 import ServiceItem from "@/app/_components/ServiceItem"
 import PhoneItem from "@/app/_components/PhoneItem"
