@@ -13,6 +13,8 @@ import {
 import Link from "next/link"
 import ServiceItem from "@/app/_components/ServiceItem"
 import PhoneItem from "@/app/_components/PhoneItem"
+import { Sheet, SheetTrigger } from "@/app/_components/ui/sheet"
+import SidebarSheet from "@/app/_components/SidebarSheet"
 
 const BarbershopPage = async ({ params }) => {
   const { id } = await params
@@ -49,13 +51,19 @@ const BarbershopPage = async ({ params }) => {
             <ChevronLeftIcon />
           </Link>
         </Button>
-        <Button
-          size="icon"
-          variant="secondary"
-          className="absolute right-4 top-4"
-        >
-          <MenuIcon />
-        </Button>
+
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              size="icon"
+              variant="outline"
+              className="absolute right-4 top-4"
+            >
+              <MenuIcon />
+            </Button>
+          </SheetTrigger>
+          <SidebarSheet />
+        </Sheet>
       </div>
 
       {/* Nome, endereço e avaliação */}
