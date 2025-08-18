@@ -24,10 +24,12 @@ export default function RootLayout({ children }) {
     <html lang="en" className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProviders>
-          {children}
-          <Toaster />
-          <Footer />
+          <div className="flex h-full flex-col">
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
         </AuthProviders>
+        <Toaster />
       </body>
     </html>
   )
