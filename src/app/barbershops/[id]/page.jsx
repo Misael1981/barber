@@ -24,13 +24,22 @@ const BarbershopPage = async ({ params }) => {
     return notFound()
   }
 
+  // Converter Decimal para number para evitar erro de serialização
+  const barbershopWithConvertedPrices = {
+    ...barbershop,
+    services: barbershop.services.map(service => ({
+      ...service,
+      price: Number(service.price)
+    }))
+  }
+
   return (
     <div>
       {/* Imagem */}
       <div className="relative h-[250px] w-full">
         <Image
-          alt={barbershop.name}
-          src={barbershop?.imageUrl}
+          alt={barbershopWithConvertedPrices.name}
+          src={barbershopWithConvertedPrices?.imageUrl}
           fill
           className="object-cover"
         />
@@ -61,10 +70,10 @@ const BarbershopPage = async ({ params }) => {
 
       {/* Nome, endereço e avaliação */}
       <div className="border-b border-solid p-5">
-        <h1 className="mb-6 text-xl font-bold">{barbershop.name}</h1>
+        <h1 className="mb-6 text-xl font-bold">{barbershopWithConvertedPrices.name}</h1>
         <div className="mb-2 flex items-center gap-1">
           <MapPinIcon className="gap-1 text-primary" size={18} />
-          <p className="text-sm">{barbershop?.address}</p>
+          <p className="text-sm">{barbershopWithConvertedPrices?.address}</p>
         </div>
         <div className="flex items-center gap-1">
           <StarIcon className="gap-1 fill-primary text-primary" size={18} />
@@ -77,7 +86,7 @@ const BarbershopPage = async ({ params }) => {
         <h2 className="mb-2 text-xs font-bold uppercase text-gray-400">
           Sobre nós
         </h2>
-        <p className="text-justify text-sm">{barbershop?.description}</p>
+        <p className="text-justify text-sm">{barbershopWithConvertedPrices?.description}</p>
       </div>
 
       {/* Serviços */}
@@ -86,8 +95,8 @@ const BarbershopPage = async ({ params }) => {
           Serviços
         </h2>
         <div className="space-y-3">
-          {barbershop.services.map((service) => (
-            <ServiceItem key={service.id} service={service} barberShop={barbershop} />
+          {barbershopWithConvertedPrices.services.map((service) => (
+            <ServiceItem key={service.id} service={service} barberShop={barbershopWithConvertedPrices} />
           ))}
         </div>
       </div>
@@ -95,7 +104,7 @@ const BarbershopPage = async ({ params }) => {
       {/* Contato */}
 
       <div className="space-y-3 p-5">
-        {barbershop.phones.map((phone, index) => (
+        {barbershopWithConvertedPrices.phones.map((phone, index) => (
           <PhoneItem key={index} phone={phone} />
         ))}
       </div>

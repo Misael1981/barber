@@ -14,12 +14,12 @@ import {
 } from "../ui/sheet"
 import { Calendar } from "../ui/calendar"
 import { ptBR } from "date-fns/locale"
-import { useState } from "react"
-import { format } from "date-fns"
+import { useEffect, useState } from "react"
+import { format, set } from "date-fns"
 import { createBooking } from "@/app/_actions/create-booking"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { set } from "zod"
+import { getBookings } from "@/app/_actions/get-bookings"
 
 const TIME_LIST = [
   "08:00",
@@ -48,11 +48,27 @@ const TIME_LIST = [
 const ServiceItem = ({ service, barberShop }) => {
   // 1. Não exibir horários que já foram agendados
   // 2. Salvar o agendamento para o usuário logado
-  // 3. Não exibir botão de reservar se o usuário não estiver logado
+  // 3. Não deixar o usuário reservar se o usuário não estiver logado
 
   const [selectedDay, setSelectedDay] = useState(undefined)
   const [selectedTime, setSelectedTime] = useState(undefined)
+  const [dayBookings, setDayBookings] = useState([])
+
   const { data } = useSession()
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (!selectedDay) {
+        return
+      }
+      console.log('Buscando agendamentos para:', selectedDay)
+      const bookings = await getBookings({ date: selectedDay })
+      console.log('Agendamentos encontrados:', bookings)
+      setDayBookings(bookings)
+    }
+    fetch()
+  }, [selectedDay])
+  console.log('dayBookings state:', dayBookings)
 
   const handleDateSelect = (date) => {
     setSelectedDay(date)
@@ -64,7 +80,21 @@ const ServiceItem = ({ service, barberShop }) => {
 
   const handleCreateBooking = async () => {
     try {
+      console.log('=== INICIANDO CRIAÇÃO DE AGENDAMENTO ===')
+      console.log('selectedDay:', selectedDay)
+      console.log('selectedTime:', selectedTime)
+      console.log('data:', data)
+      console.log('data?.user:', data?.user)
+      console.log('data?.user?.id:', data?.user?.id)
+      
       if (!selectedDay || !selectedTime) {
+        console.log('Cancelando: selectedDay ou selectedTime não definidos')
+        return
+      }
+      
+      if (!data?.user?.id) {
+        console.log('Cancelando: usuário não está logado')
+        toast.error('Você precisa estar logado para fazer um agendamento')
         return
       }
 
@@ -75,12 +105,32 @@ const ServiceItem = ({ service, barberShop }) => {
         minute: Number(minute),
       })
 
-      await createBooking({
+      console.log('Criando agendamento com dados:', {
+        serviceId: service.id,
+        userId: data?.user.id,
+        date: newDate,
+        dateType: typeof newDate,
+        isValidDate: newDate instanceof Date && !isNaN(newDate)
+      })
+      
+      const result = await createBooking({
         serviceId: service.id,
         userId: data?.user.id,
         date: newDate,
       })
-      toast.success("Agendamento criado com sucesso")
+      
+      console.log('Resultado do createBooking:', result)
+      
+      if (result.success) {
+        toast.success("Agendamento criado com sucesso")
+        // Recarregar os agendamentos do dia selecionado
+        console.log('Recarregando agendamentos para:', selectedDay)
+        const bookings = await getBookings({ date: selectedDay })
+        console.log('Novos agendamentos após criação:', bookings)
+        setDayBookings(bookings)
+      } else {
+        toast.error(result.error || "Erro ao criar agendamento")
+      }
     } catch (error) {
       console.error("Erro ao criar agendamento:", error)
       toast.error("Erro ao criar agendamento")
