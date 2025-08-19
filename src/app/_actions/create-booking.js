@@ -1,22 +1,35 @@
 "use server"
 
+import { getServerSession } from "next-auth"
 import { db } from "../_lib/prisma"
 import { revalidatePath } from "next/cache"
+import { authOptions } from "../_lib/auth"
 
 export const createBooking = async ({ serviceId, userId, date }) => {
+  const user = await getServerSession(authOptions)
+  if (!user) {
+    throw new Error("Usuário não autenticado")
+  }
+
   try {
-    // console.log('=== CREATE BOOKING SERVER SIDE ===')
-    // console.log('serviceId:', serviceId, typeof serviceId)
-    // console.log('userId:', userId, typeof userId)
-    // console.log('date:', date, typeof date)
-    // console.log('date instanceof Date:', date instanceof Date)
-    // console.log('date isNaN:', isNaN(date))
+    // Converter string ISO para objeto Date preservando o horário
+    const isoDate = new Date(date)
+
+    // Extrair componentes UTC para preservar o horário original
+    const year = isoDate.getUTCFullYear()
+    const month = isoDate.getUTCMonth()
+    const day = isoDate.getUTCDate()
+    const hours = isoDate.getUTCHours()
+    const minutes = isoDate.getUTCMinutes()
+
+    // Criar uma nova data usando os componentes UTC
+    const bookingDate = new Date(year, month, day, hours, minutes)
 
     const booking = await db.booking.create({
       data: {
         serviceId,
         userId,
-        date,
+        date: bookingDate,
       },
     })
 

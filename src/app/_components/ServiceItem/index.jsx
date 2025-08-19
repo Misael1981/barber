@@ -10,7 +10,6 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "../ui/sheet"
 import { Calendar } from "../ui/calendar"
 import { ptBR } from "date-fns/locale"
@@ -47,6 +46,8 @@ const TIME_LIST = [
   "18:00",
 ]
 
+// Pega os horários que já estão ocupado e remove da TIME_LIST
+
 const getTimeList = (bookings, serviceId) => {
   console.log("getTimeList - bookings recebidos:", bookings)
   console.log("getTimeList - serviceId:", serviceId)
@@ -61,14 +62,15 @@ const getTimeList = (bookings, serviceId) => {
       const bookingMinutes = booking.date.getMinutes()
       const sameService = booking.service?.id === serviceId
       const sameTime = bookingHour === hour && bookingMinutes === minutes
+      console.log("Qual horário está sendo salvo ", bookingHour, bookingMinutes)
 
-      console.log(`Verificando horário ${time}:`, {
-        bookingTime: `${bookingHour}:${bookingMinutes.toString().padStart(2, "0")}`,
-        sameService,
-        sameTime,
-        bookingServiceId: booking.service?.id,
-        targetServiceId: serviceId,
-      })
+      // console.log(`Verificando horário ${time}:`, {
+      //   bookingTime: `${bookingHour}:${bookingMinutes.toString().padStart(2, "0")}`,
+      //   sameService,
+      //   sameTime,
+      //   bookingServiceId: booking.service?.id,
+      //   targetServiceId: serviceId,
+      // })
 
       return sameService && sameTime
     })
@@ -86,44 +88,71 @@ const getTimeList = (bookings, serviceId) => {
 
 const ServiceItem = ({ service, barberShop }) => {
   // 1. Não exibir horários que já foram agendados
-  // 2. Salvar o agendamento para o usuário logado
-  // 3. Não deixar o usuário reservar se o usuário não estiver logado
 
   const [selectedDay, setSelectedDay] = useState(undefined)
   const [selectedTime, setSelectedTime] = useState(undefined)
   const [dayBookings, setDayBookings] = useState([])
+
   const [bookingSheetIsOpen, setBookingSheetIsOpen] = useState(false)
   const [signInDialogIsOpen, setSignInDialogIsOpen] = useState(false)
 
   const { data } = useSession()
-
   useEffect(() => {
     const fetch = async () => {
       if (!selectedDay) {
+        console.log("selectedDay não definido, não buscando agendamentos")
         return
       }
       console.log("Buscando agendamentos para:", selectedDay)
       const bookings = await getBookings({ date: selectedDay })
+      console.log(
+        "A função getBookings foi chamada com o parâmetro:",
+        selectedDay,
+      )
+
       console.log("Agendamentos encontrados:", bookings)
+
+      // DEBUG: Verificar como as datas chegam do servidor
+      bookings.forEach((booking, index) => {
+        console.log(`DEBUG - Booking ${index + 1}:`, {
+          id: booking.id,
+          originalDate: booking.date,
+          dateType: typeof booking.date,
+          isDate: booking.date instanceof Date,
+          hours: booking.date instanceof Date ? booking.date.getHours() : "N/A",
+          minutes:
+            booking.date instanceof Date ? booking.date.getMinutes() : "N/A",
+          timeString:
+            booking.date instanceof Date
+              ? `${booking.date.getHours()}:${booking.date.getMinutes().toString().padStart(2, "0")}`
+              : "N/A",
+        })
+      })
+
       setDayBookings(bookings)
+      console.log("useEffect sendo executado - agendamentos carregados")
     }
     fetch()
   }, [selectedDay])
   console.log("dayBookings state:", dayBookings)
 
   const handleBookingClick = () => {
-    if (data?.user) {
-      return setBookingSheetIsOpen(true)
+    if (!data?.user) {
+      return setSignInDialogIsOpen(true)
     }
-    // Se o usuário não estiver logado, mostrar toast de erro
-    return toast.error("Você precisa estar logado para fazer um agendamento")
+    // Definir a data atual como padrão ao abrir o modal
+    setSelectedDay(new Date())
+    setBookingSheetIsOpen(true)
   }
 
-  const handleBookingSheetOpenChange = () => {
-    setSelectedDay(undefined)
-    setSelectedTime(undefined)
-    setDayBookings([])
-    setBookingSheetIsOpen(false)
+  const handleBookingSheetOpenChange = (isOpen) => {
+    if (!isOpen) {
+      // Só resetar os estados se o modal estiver sendo fechado manualmente
+      setSelectedDay(undefined)
+      setSelectedTime(undefined)
+      setDayBookings([])
+    }
+    setBookingSheetIsOpen(isOpen)
   }
 
   const handleDateSelect = (date) => {
@@ -134,15 +163,10 @@ const ServiceItem = ({ service, barberShop }) => {
     setSelectedTime(time)
   }
 
+  // Função para criar agendamento
+
   const handleCreateBooking = async () => {
     try {
-      console.log("=== INICIANDO CRIAÇÃO DE AGENDAMENTO ===")
-      console.log("selectedDay:", selectedDay)
-      console.log("selectedTime:", selectedTime)
-      console.log("data:", data)
-      console.log("data?.user:", data?.user)
-      console.log("data?.user?.id:", data?.user?.id)
-
       if (!selectedDay || !selectedTime) {
         console.log("Cancelando: selectedDay ou selectedTime não definidos")
         return
@@ -154,8 +178,23 @@ const ServiceItem = ({ service, barberShop }) => {
         return
       }
 
+      console.log("DEBUG - Valores antes da criação da data:", {
+        selectedDay,
+        selectedTime,
+        selectedDayType: typeof selectedDay,
+        selectedTimeType: typeof selectedTime,
+      })
+
       const hour = selectedTime.split(":")[0]
       const minute = selectedTime.split(":")[1]
+
+      console.log("DEBUG - Hora e minuto extraídos:", {
+        hour,
+        minute,
+        hourNumber: Number(hour),
+        minuteNumber: Number(minute),
+      })
+
       const newDate = set(selectedDay, {
         hour: Number(hour),
         minute: Number(minute),
@@ -167,23 +206,40 @@ const ServiceItem = ({ service, barberShop }) => {
         date: newDate,
         dateType: typeof newDate,
         isValidDate: newDate instanceof Date && !isNaN(newDate),
+        hours: newDate.getHours(),
+        minutes: newDate.getMinutes(),
+        timeString: `${newDate.getHours()}:${newDate.getMinutes().toString().padStart(2, "0")}`,
+      })
+
+      // Converter para ISO string para evitar problemas de serialização
+      const dateISO = newDate.toISOString()
+
+      console.log("DEBUG - Enviando data como ISO string:", {
+        originalDate: newDate,
+        isoString: dateISO,
+        reconstructedDate: new Date(dateISO),
+        reconstructedHours: new Date(dateISO).getHours(),
+        reconstructedMinutes: new Date(dateISO).getMinutes(),
       })
 
       const result = await createBooking({
         serviceId: service.id,
         userId: data?.user.id,
-        date: newDate,
+        date: dateISO,
       })
-
-      console.log("Resultado do createBooking:", result)
 
       if (result.success) {
         toast.success("Agendamento criado com sucesso")
-        // Recarregar os agendamentos do dia selecionado
-        console.log("Recarregando agendamentos para:", selectedDay)
-        const bookings = await getBookings({ date: selectedDay })
+        // Preservar o selectedDay para recarregar os agendamentos
+        const currentSelectedDay = selectedDay
+        console.log("Recarregando agendamentos para:", currentSelectedDay)
+        const bookings = await getBookings({ date: currentSelectedDay })
         console.log("Novos agendamentos após criação:", bookings)
         setDayBookings(bookings)
+        // Resetar apenas o selectedTime após sucesso
+        setSelectedTime(undefined)
+        // Fechar o modal após sucesso
+        setBookingSheetIsOpen(false)
       } else {
         toast.error(result.error || "Erro ao criar agendamento")
       }
@@ -237,6 +293,7 @@ const ServiceItem = ({ service, barberShop }) => {
                       locale={ptBR}
                       selected={selectedDay}
                       onSelect={handleDateSelect}
+                      fromDate={new Date()}
                       styles={{
                         head_cell: {
                           width: "100%",
