@@ -22,6 +22,13 @@ export const getBookings = async ({ date }) => {
   })
   
   console.log('getBookings - Agendamentos encontrados no banco:', bookings.length)
+  console.log('getBookings - Detalhes dos agendamentos:', bookings.map(b => ({
+    id: b.id,
+    date: b.date,
+    serviceId: b.service?.id,
+    serviceName: b.service?.name,
+    userName: b.user?.name
+  })))
 
   // Converter Decimal para number para evitar erro de serialização
   return bookings.map(booking => ({

@@ -20,13 +20,10 @@ export const createBooking = async ({ serviceId, userId, date }) => {
       },
     })
 
-    console.log("Booking criado com sucesso:", booking)
-
     // Revalida a página para mostrar os dados atualizados
     revalidatePath("/")
     revalidatePath("/barbershops")
-
-    console.log("Agendamento criado com sucesso:", booking)
+    revalidatePath("/barbershops/[id]")
     return { success: true, booking }
   } catch (error) {
     console.error("Erro ao criar agendamento:", error)
