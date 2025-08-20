@@ -1,3 +1,5 @@
+"use client"
+
 import { format, isFuture } from "date-fns"
 import { Avatar, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
@@ -5,20 +7,53 @@ import { Card, CardContent } from "../ui/card"
 import { ptBR } from "date-fns/locale"
 import {
   Sheet,
+  SheetClose,
   SheetContent,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet"
 import Image from "next/image"
 import PhoneItem from "../PhoneItem"
+import { Button } from "../ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog"
+import { deleteBooking } from "@/app/_actions/delete-bookings"
+import { toast } from "sonner"
+import { useState } from "react"
 
 const BookingItem = ({ booking }) => {
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+
   const isConfirmed = isFuture(booking.date)
-  console.log("Página de Item de Agendamento: ", isConfirmed)
-  console.log("Página de Item de Agendamento: ", booking.date)
+  const handleCancelBooking = async () => {
+    try {
+      await deleteBooking(booking.id)
+      setIsSheetOpen(false)
+
+      toast.success("Reserva cancelada com sucesso")
+    } catch (error) {
+      console.error(error)
+      toast.error("Erro ao cancelar reserva")
+    }
+  }
+
+  const handleSheetOpenChange = (open) => {
+    setIsSheetOpen(open)
+  }
+
   return (
-    <Sheet>
+    <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger className="w-full">
         <Card className="p-0">
           <CardContent className="flex justify-between p-0">
@@ -134,6 +169,44 @@ const BookingItem = ({ booking }) => {
             ))}
           </div>
         </div>
+        <SheetFooter className="mt-6">
+          <div className="flex items-center justify-between gap-3">
+            <SheetClose asChild>
+              <Button variant="outline" className="flex-1">
+                Voltar
+              </Button>
+            </SheetClose>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                {isConfirmed && (
+                  <Button variant="destructive" className="flex-1">
+                    Cancelar Reserva
+                  </Button>
+                )}
+              </AlertDialogTrigger>
+              <AlertDialogContent className="w-[90%]">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Você quer cancelar sua reserva?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tem certeza que quer fazer o cancelamento? Essa ação é
+                    irreversível!
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button variant="destructive" onClick={handleCancelBooking}>
+                      Confirmar
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   )
