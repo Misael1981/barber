@@ -19,7 +19,7 @@ const Home = async () => {
       name: "desc",
     },
   })
-  const bookings = session.user
+  const bookings = session?.user // ✅ CORREÇÃO: usar optional chaining
     ? await db.booking.findMany({
         where: {
           userId: session.user.id,
@@ -38,7 +38,8 @@ const Home = async () => {
       <Header />
       <div className="p-5">
         <h2 className="txt-xl font-bold">
-          Olá, {session.user ? session.user.name : "Usuário"}!
+          Olá, {session?.user ? session.user.name : "Usuário"}!{" "}
+          {/* ✅ CORREÇÃO: usar optional chaining */}
         </h2>
         <p>
           <span className="capitalize">

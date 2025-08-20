@@ -8,7 +8,7 @@ import BookingItem from "../_components/BookingItem"
 const Bookings = async () => {
   const seccion = await getServerSession(authOptions)
 
-  if (!seccion.user) {
+  if (!seccion?.user) {
     //Todo: Mostrar popup de login
     return notFound()
   }
@@ -69,37 +69,46 @@ const Bookings = async () => {
     },
   }))
 
-  console.log("Página de Agendamentos: ", { confirmedBookings, finishedBookings })
+  console.log("Página de Agendamentos: ", {
+    confirmedBookings,
+    finishedBookings,
+  })
 
   return (
     <>
       <Header />
       <div className="space-y-3 p-5">
         <h1 className="text-xl font-bold">Agendamentos</h1>
-        
+
         {/* Agendamentos Confirmados */}
         {confirmedBookings.length > 0 && (
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide">Confirmados</h2>
+            <h2 className="text-lg font-semibold uppercase tracking-wide text-gray-400">
+              Confirmados
+            </h2>
             {confirmedBookings.map((booking) => (
               <BookingItem key={booking.id} booking={booking} />
             ))}
           </div>
         )}
-        
+
         {/* Agendamentos Finalizados */}
         {finishedBookings.length > 0 && (
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide">Finalizados</h2>
+            <h2 className="text-lg font-semibold uppercase tracking-wide text-gray-400">
+              Finalizados
+            </h2>
             {finishedBookings.map((booking) => (
               <BookingItem key={booking.id} booking={booking} />
             ))}
           </div>
         )}
-        
+
         {/* Mensagem quando não há agendamentos */}
         {confirmedBookings.length === 0 && finishedBookings.length === 0 && (
-          <p className="text-gray-400 text-center py-8">Você não possui agendamentos.</p>
+          <p className="py-8 text-center text-gray-400">
+            Você não possui agendamentos.
+          </p>
         )}
       </div>
     </>
