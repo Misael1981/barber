@@ -13,8 +13,8 @@ import {
 } from "../ui/sheet"
 import { Calendar } from "../ui/calendar"
 import { ptBR } from "date-fns/locale"
-import { useEffect, useState } from "react"
-import { format, set } from "date-fns"
+import { useEffect, useMemo, useState } from "react"
+import { format, isPast, isToday, set } from "date-fns"
 import { createBooking } from "@/app/_actions/create-booking"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
@@ -48,13 +48,22 @@ const TIME_LIST = [
 
 // Pega os horários que já estão ocupado e remove da TIME_LIST
 
-const getTimeList = (bookings, serviceId) => {
-  console.log("getTimeList - bookings recebidos:", bookings)
-  console.log("getTimeList - serviceId:", serviceId)
-
+const getTimeList = ({ bookings, serviceId, selectedDay }) => {
   const timeList = TIME_LIST.filter((time) => {
     const hour = Number(time.split(":")[0])
     const minutes = Number(time.split(":")[1])
+
+    const timeIsOnThePast = isPast(
+      set(new Date(), {
+        hours: hour,
+        minutes,
+      }),
+    )
+    console.log("timeIsOnThePast:", timeIsOnThePast)
+
+    if (timeIsOnThePast && isToday(selectedDay)) {
+      return false
+    }
 
     // Filtrar apenas agendamentos do mesmo serviço
     const hasBookingOnCurrentTime = bookings.some((booking) => {
@@ -62,15 +71,6 @@ const getTimeList = (bookings, serviceId) => {
       const bookingMinutes = booking.date.getMinutes()
       const sameService = booking.service?.id === serviceId
       const sameTime = bookingHour === hour && bookingMinutes === minutes
-      console.log("Qual horário está sendo salvo ", bookingHour, bookingMinutes)
-
-      // console.log(`Verificando horário ${time}:`, {
-      //   bookingTime: `${bookingHour}:${bookingMinutes.toString().padStart(2, "0")}`,
-      //   sameService,
-      //   sameTime,
-      //   bookingServiceId: booking.service?.id,
-      //   targetServiceId: serviceId,
-      // })
 
       return sameService && sameTime
     })
@@ -97,6 +97,19 @@ const ServiceItem = ({ service, barberShop }) => {
   const [signInDialogIsOpen, setSignInDialogIsOpen] = useState(false)
 
   const { data } = useSession()
+
+  const time_list = useMemo(() => {
+    if (!selectedDay) {
+      return []
+    }
+
+    return getTimeList({
+      bookings: dayBookings,
+      serviceId: service.id,
+      selectedDay,
+    })
+  }, [dayBookings, service.id, selectedDay])
+
   useEffect(() => {
     const fetch = async () => {
       if (!selectedDay) {
@@ -110,27 +123,10 @@ const ServiceItem = ({ service, barberShop }) => {
         selectedDay,
       )
 
-      console.log("Agendamentos encontrados:", bookings)
-
       // DEBUG: Verificar como as datas chegam do servidor
-      bookings.forEach((booking, index) => {
-        console.log(`DEBUG - Booking ${index + 1}:`, {
-          id: booking.id,
-          originalDate: booking.date,
-          dateType: typeof booking.date,
-          isDate: booking.date instanceof Date,
-          hours: booking.date instanceof Date ? booking.date.getHours() : "N/A",
-          minutes:
-            booking.date instanceof Date ? booking.date.getMinutes() : "N/A",
-          timeString:
-            booking.date instanceof Date
-              ? `${booking.date.getHours()}:${booking.date.getMinutes().toString().padStart(2, "0")}`
-              : "N/A",
-        })
-      })
+      bookings.forEach((booking, index) => {})
 
       setDayBookings(bookings)
-      console.log("useEffect sendo executado - agendamentos carregados")
     }
     fetch()
   }, [selectedDay])
@@ -178,49 +174,16 @@ const ServiceItem = ({ service, barberShop }) => {
         return
       }
 
-      console.log("DEBUG - Valores antes da criação da data:", {
-        selectedDay,
-        selectedTime,
-        selectedDayType: typeof selectedDay,
-        selectedTimeType: typeof selectedTime,
-      })
-
       const hour = selectedTime.split(":")[0]
       const minute = selectedTime.split(":")[1]
-
-      console.log("DEBUG - Hora e minuto extraídos:", {
-        hour,
-        minute,
-        hourNumber: Number(hour),
-        minuteNumber: Number(minute),
-      })
 
       const newDate = set(selectedDay, {
         hour: Number(hour),
         minute: Number(minute),
       })
 
-      console.log("Criando agendamento com dados:", {
-        serviceId: service.id,
-        userId: data?.user.id,
-        date: newDate,
-        dateType: typeof newDate,
-        isValidDate: newDate instanceof Date && !isNaN(newDate),
-        hours: newDate.getHours(),
-        minutes: newDate.getMinutes(),
-        timeString: `${newDate.getHours()}:${newDate.getMinutes().toString().padStart(2, "0")}`,
-      })
-
       // Converter para ISO string para evitar problemas de serialização
       const dateISO = newDate.toISOString()
-
-      console.log("DEBUG - Enviando data como ISO string:", {
-        originalDate: newDate,
-        isoString: dateISO,
-        reconstructedDate: new Date(dateISO),
-        reconstructedHours: new Date(dateISO).getHours(),
-        reconstructedMinutes: new Date(dateISO).getMinutes(),
-      })
 
       const result = await createBooking({
         serviceId: service.id,
@@ -324,18 +287,22 @@ const ServiceItem = ({ service, barberShop }) => {
                   {selectedDay && (
                     <div className="border-b border-solid py-5">
                       <div className="flex gap-3 overflow-x-auto border-b border-solid [&::-webkit-scrollbar]:hidden">
-                        {getTimeList(dayBookings, service.id).map((time) => (
-                          <Button
-                            key={time}
-                            className="rounded-full"
-                            variant={
-                              selectedTime === time ? "default" : "outline"
-                            }
-                            onClick={() => handleTimeSelect(time)}
-                          >
-                            {time}
-                          </Button>
-                        ))}
+                        {time_list.length > 0 ? (
+                          time_list.map((time) => (
+                            <Button
+                              key={time}
+                              className="rounded-full"
+                              variant={
+                                selectedTime === time ? "default" : "outline"
+                              }
+                              onClick={() => handleTimeSelect(time)}
+                            >
+                              {time}
+                            </Button>
+                          ))
+                        ) : (
+                          <p className="text-xs">Não há horários disponíveis</p>
+                        )}
                       </div>
 
                       {selectedTime && (
