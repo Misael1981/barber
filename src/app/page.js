@@ -4,21 +4,34 @@ import { Button } from "./_components/ui/button"
 import { db } from "./_lib/prisma"
 import BarberShopItem from "./_components/BarberShopItem"
 import { quickSearchOptions } from "./_constants/search"
-import BookingItem from "./_components/BookingItem"
-import Search from "./_components/Search"
 import { authOptions } from "./_lib/auth"
 import { getServerSession } from "next-auth"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import WelcomeSection from "./_components/WelcomeSection"
+import Carousel from "./_components/Carousel"
 
 const Home = async () => {
   const session = await getServerSession(authOptions)
-  const barberShops = await db.barbershop.findMany({})
+  const barberShops = await db.barbershop.findMany({
+    take: 10,
+  })
+
+  // Populares (ordenadas por nome, primeiras 4)
   const popularBarberShops = await db.barbershop.findMany({
+    skip: 10, // ✅ Pula as primeiras 2
+    take: 10,
     orderBy: {
-      name: "desc",
+      createdAt: "desc", // ✅ A-Z em vez de Z-A
     },
   })
+
+  // Mais vistos (ordenadas por data de criação, primeiras 3)
+  const mostViewedBarberShops = await db.barbershop.findMany({
+    orderBy: {
+      createdAt: "asc", // ✅ Ordenação diferente
+    },
+    take: 10, // ✅ Limita a 3 resultados
+  })
+  console.log("Retorno de mostViewedBarberShops ", mostViewedBarberShops)
   const bookings = session?.user // ✅ CORREÇÃO: usar optional chaining
     ? await db.booking.findMany({
         where: {
@@ -36,27 +49,16 @@ const Home = async () => {
   return (
     <div>
       <Header />
-      <div className="p-5">
-        <h2 className="txt-xl font-bold">
-          Olá, {session?.user ? session.user.name : "Usuário"}!{" "}
-          {/* ✅ CORREÇÃO: usar optional chaining */}
-        </h2>
-        <p>
-          <span className="capitalize">
-            {format(new Date(), "EEEE, dd", { locale: ptBR })}
-          </span>
-          <span>&nbsp;de&nbsp;</span>
-          <span className="capitalize">
-            {format(new Date(), "MMMM", { locale: ptBR })}
-          </span>
-        </p>
-
-        <div className="mt-6">
-          <Search />
-        </div>
+      <div className="p-0">
+        <WelcomeSection
+          session={session}
+          bookings={bookings}
+          barberShops={barberShops}
+          mostViewedBarberShops={mostViewedBarberShops}
+        />
 
         {/* Botões de Busca */}
-        <div className="mt-6 flex gap-3 overflow-auto [&::-webkit-scrollbar]:hidden">
+        <div className="mx-auto mt-6 flex gap-3 overflow-auto px-5 lg:justify-center [&::-webkit-scrollbar]:hidden">
           {quickSearchOptions.map((option, index) => (
             <Button key={index} className="gap-2" variant="secondary">
               <Image
@@ -70,38 +72,20 @@ const Home = async () => {
           ))}
         </div>
 
-        {/* Banner Principal */}
-        <div className="relative mt-6 h-[150px] w-full">
-          <Image
-            src="/banner-01.png"
-            fill
-            className="rounded-xl object-cover"
-            alt="Banner principal - Agende com os melhores"
-          />
+        <div className="boxed my-10 px-5">
+          <Carousel title="Recomendados">
+            {barberShops.map((barberShop) => (
+              <BarberShopItem key={barberShop.id} barberShop={barberShop} />
+            ))}
+          </Carousel>
         </div>
 
-        {/* Agendamentos */}
-        <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-          Agendamentos
-        </h2>
-        {bookings.length > 0 && <BookingItem booking={bookings[0]} />}
-
-        <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-          Recomendados
-        </h2>
-        <div className="flex gap-4 overflow-auto [&::-webkit-scrollbar]:hidden">
-          {barberShops.map((barberShop) => (
-            <BarberShopItem key={barberShop.id} barberShop={barberShop} />
-          ))}
-        </div>
-
-        <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-          Populares
-        </h2>
-        <div className="flex gap-4 overflow-auto [&::-webkit-scrollbar]:hidden">
-          {popularBarberShops.map((barberShop) => (
-            <BarberShopItem key={barberShop.id} barberShop={barberShop} />
-          ))}
+        <div className="boxed my-10 px-5">
+          <Carousel title="Populares">
+            {popularBarberShops.map((barberShop) => (
+              <BarberShopItem key={barberShop.id} barberShop={barberShop} />
+            ))}
+          </Carousel>
         </div>
       </div>
     </div>

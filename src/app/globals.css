@@ -68,6 +68,12 @@
   }
 }
 
+@layer utilities {
+  .boxed {
+    @apply mx-auto w-full max-w-7xl;
+  }
+}
+
 @layer base {
   * {
     @apply border-border antialiased;
