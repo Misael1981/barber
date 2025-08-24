@@ -10,6 +10,7 @@ import { Avatar, AvatarImage } from "../ui/avatar"
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog"
 import { signIn, signOut, useSession } from "next-auth/react"
 import SignInDialog from "../SignInDialog"
+import AppointmentsButton from "../AppointmentsButton"
 
 const SidebarSheet = () => {
   const { data } = useSession()
@@ -92,12 +93,9 @@ const SidebarSheet = () => {
             </Link>
           </Button>
         </SheetClose>
-        <Button className="justify-start gap-2" variant="ghost" asChild>
-          <Link href="/bookings">
-            <Calendar1Icon size={18} />
-            Agendamentos
-          </Link>
-        </Button>
+        <div className="justify-start gap-2">
+          <AppointmentsButton />
+        </div>
       </div>
 
       <div className="flex flex-col gap-2 border-b border-solid py-5">

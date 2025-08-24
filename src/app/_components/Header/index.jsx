@@ -5,6 +5,7 @@ import { MenuIcon } from "lucide-react"
 import { Sheet, SheetTrigger } from "../ui/sheet"
 import SidebarSheet from "../SidebarSheet"
 import Link from "next/link"
+import AppointmentsButton from "../AppointmentsButton"
 
 const Header = () => {
   return (
@@ -22,7 +23,7 @@ const Header = () => {
           <SidebarSheet />
         </Sheet>
         <div className="hidden items-center gap-5 lg:flex">
-          <p>Agendamentos</p>
+          <AppointmentsButton />
           <p>Login</p>
         </div>
       </CardContent>

@@ -5,6 +5,9 @@ const nextConfig = {
       {
         hostname: "utfs.io",
       },
+      {
+        hostname: "ts9ua2aa19.ufs.sh", // 👈 Novo domínio do UploadThing
+      },
     ],
   },
 }
