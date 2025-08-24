@@ -52,38 +52,6 @@ const SidebarSheet = () => {
         )}
       </div>
 
-      {/* <div className="flex items-center justify-between gap-3 border-b border-solid p-5">
-        <h2 className="font-bold">Olá, faça seu login!</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="icon">
-              <LogInIcon />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="w-[90%]">
-            <DialogHeader>
-              <DialogTitle>Faça login na plataforma</DialogTitle>
-              <DialogDescription>
-                Conecte-se usando sua conta do Google
-              </DialogDescription>
-            </DialogHeader>
-            <Button
-              variant="outline"
-              className="gap-2 font-bold"
-              onClick={handleLoginWithGoogleClick}
-            >
-              <Image
-                src="/google.svg"
-                alt="Ícone do Google"
-                width={18}
-                height={18}
-              />
-              Google
-            </Button>
-          </DialogContent>
-        </Dialog>
-      </div> */}
-
       <div className="flex flex-col gap-2 border-b border-solid py-5">
         <SheetClose asChild>
           <Button className="justify-start gap-2" variant="ghost" asChild>
