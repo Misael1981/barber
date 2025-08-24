@@ -14,7 +14,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet"
-import Image from "next/image"
 import PhoneItem from "../PhoneItem"
 import { Button } from "../ui/button"
 import {
@@ -31,6 +30,7 @@ import {
 import { deleteBooking } from "@/app/_actions/delete-bookings"
 import { toast } from "sonner"
 import { useState } from "react"
+import MapDescription from "../MapDescription"
 
 const BookingItem = ({ booking }) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
@@ -92,30 +92,7 @@ const BookingItem = ({ booking }) => {
           <SheetTitle className="text-left">Informações da Reserva</SheetTitle>
         </SheetHeader>
 
-        <div className="relative mt-6 flex h-[180px] w-full items-end">
-          <Image
-            src="/map.png"
-            fill
-            className="rounded-xl object-cover"
-            alt="Mapa do Salão"
-          />
-          <Card className="z-50 mx-5 mb-3 w-full rounded-xl">
-            <CardContent className="flex items-center gap-3 px-5 py-0">
-              <Avatar>
-                <AvatarImage src={booking.service.barbershop.imageUrl} />
-              </Avatar>
-              <div>
-                <h3 className="font-semibold">
-                  {booking.service.barbershop.name}
-                </h3>
-
-                <p className="text-sm text-gray-400">
-                  {booking.service.barbershop.address}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <MapDescription booking={booking} />
 
         <div className="mt-0">
           <Badge
