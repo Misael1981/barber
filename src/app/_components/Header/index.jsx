@@ -19,7 +19,7 @@ const Header = () => {
   const pathname = usePathname()
 
   return (
-    <Card className="p-0 lg:py-3">
+    <Card className="p-0 lg:py-1">
       <CardContent className="flex flex-row items-center justify-between p-5">
         <Link href="/">
           <Image alt="FSW Barber" src="/Logo.png" height={18} width={120} />
