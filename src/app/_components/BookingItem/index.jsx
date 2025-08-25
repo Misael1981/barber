@@ -36,6 +36,7 @@ const BookingItem = ({ booking }) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const isConfirmed = isFuture(booking.date)
+
   const handleCancelBooking = async () => {
     try {
       await deleteBooking(booking.id)
@@ -45,6 +46,19 @@ const BookingItem = ({ booking }) => {
     } catch (error) {
       console.error(error)
       toast.error("Erro ao cancelar reserva")
+    }
+  }
+
+  // Nova função para excluir reservas finalizadas
+  const handleDeleteFinishedBooking = async () => {
+    try {
+      await deleteBooking(booking.id)
+      setIsSheetOpen(false)
+
+      toast.success("Reserva excluída com sucesso")
+    } catch (error) {
+      console.error(error)
+      toast.error("Erro ao excluir reserva")
     }
   }
 
@@ -154,34 +168,71 @@ const BookingItem = ({ booking }) => {
               </Button>
             </SheetClose>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                {isConfirmed && (
+            {/* Botão para reservas confirmadas (futuras) */}
+            {isConfirmed && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
                   <Button variant="destructive" className="flex-1">
                     Cancelar Reserva
                   </Button>
-                )}
-              </AlertDialogTrigger>
-              <AlertDialogContent className="w-[90%]">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Você quer cancelar sua reserva?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Tem certeza que quer fazer o cancelamento? Essa ação é
-                    irreversível!
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button variant="destructive" onClick={handleCancelBooking}>
-                      Confirmar
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="w-[90%]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Você quer cancelar sua reserva?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que quer fazer o cancelamento? Essa ação é
+                      irreversível!
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction asChild>
+                      <Button
+                        variant="destructive"
+                        onClick={handleCancelBooking}
+                      >
+                        Confirmar
+                      </Button>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+
+            {/* Botão para reservas finalizadas (passadas) */}
+            {!isConfirmed && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="flex-1">
+                    Excluir Reserva
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="w-[90%]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Excluir reserva finalizada?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja excluir esta reserva do seu
+                      histórico? Essa ação é irreversível!
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction asChild>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteFinishedBooking}
+                      >
+                        Excluir
+                      </Button>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </SheetFooter>
       </SheetContent>

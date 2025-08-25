@@ -17,7 +17,7 @@ const Bookings = async () => {
     where: {
       userId: seccion.user.id,
       date: {
-        gte: new Date(), // Data maior ou igual a hoje
+        gte: new Date(),
       },
     },
     include: {
@@ -28,7 +28,7 @@ const Bookings = async () => {
       },
     },
     orderBy: {
-      date: "asc", // Próximos primeiro
+      date: "asc",
     },
   })
 
@@ -69,40 +69,40 @@ const Bookings = async () => {
     },
   }))
 
-  console.log("Página de Agendamentos: ", {
-    confirmedBookings,
-    finishedBookings,
-  })
-
   return (
     <>
       <Header />
-      <div className="space-y-3 p-5">
+      <div className="lg:boxed space-y-3 p-5">
         <h1 className="text-xl font-bold">Agendamentos</h1>
 
-        {/* Agendamentos Confirmados */}
-        {confirmedBookings.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold uppercase tracking-wide text-gray-400">
-              Confirmados
-            </h2>
-            {confirmedBookings.map((booking) => (
-              <BookingItem key={booking.id} booking={booking} />
-            ))}
+        <div className="lg:boxed justify-center gap-5 lg:flex">
+          {/* Agendamentos Confirmados */}
+          <div className="lg:max-w-[600px]">
+            {confirmedBookings.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-lg font-semibold uppercase tracking-wide text-gray-400">
+                  Confirmados
+                </h2>
+                {confirmedBookings.map((booking) => (
+                  <BookingItem key={booking.id} booking={booking} />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Agendamentos Finalizados */}
-        {finishedBookings.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold uppercase tracking-wide text-gray-400">
-              Finalizados
-            </h2>
-            {finishedBookings.map((booking) => (
-              <BookingItem key={booking.id} booking={booking} />
-            ))}
+          {/* Agendamentos Finalizados */}
+          <div className="lg:max-w-[600px]">
+            {finishedBookings.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-lg font-semibold uppercase tracking-wide text-gray-400">
+                  Finalizados
+                </h2>
+                {finishedBookings.map((booking) => (
+                  <BookingItem key={booking.id} booking={booking} />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Mensagem quando não há agendamentos */}
         {confirmedBookings.length === 0 && finishedBookings.length === 0 && (
