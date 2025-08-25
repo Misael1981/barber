@@ -11,16 +11,22 @@ import AppointmentsButton from "../AppointmentsButton"
 import LoginButton from "../LoginButton"
 import { useSession } from "next-auth/react"
 import { Avatar, AvatarImage } from "../ui/avatar"
+import Search from "../Search"
+import { usePathname } from "next/navigation"
 
 const Header = () => {
   const { data } = useSession()
-  console.log("Data do Header", data)
+  const pathname = usePathname()
+
   return (
     <Card className="p-0 lg:py-3">
       <CardContent className="flex flex-row items-center justify-between p-5">
         <Link href="/">
           <Image alt="FSW Barber" src="/Logo.png" height={18} width={120} />
         </Link>
+        <div className="hidden w-[600px] lg:block">
+          {pathname !== "/" && <Search />}
+        </div>
         <Sheet>
           <SheetTrigger asChild className="lg:hidden">
             <Button size="icon" variant="outline">

@@ -31,7 +31,7 @@ const Home = async () => {
     },
     take: 10, // ✅ Limita a 3 resultados
   })
-  console.log("Retorno de mostViewedBarberShops ", mostViewedBarberShops)
+
   const bookings = session?.user // ✅ CORREÇÃO: usar optional chaining
     ? await db.booking.findMany({
         where: {

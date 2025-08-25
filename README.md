@@ -18,3 +18,107 @@
 "https://ts9ua2aa19.ufs.sh/f/V1iaeQg5P6aEAXNzKLljdGH0Y1UkaP6gmJqQVWeBvt2XzxN5"
 "https://ts9ua2aa19.ufs.sh/f/V1iaeQg5P6aErRm8FQb8biCdIzL40EmXWFr2U5AgxNqf9PVa"
 "https://ts9ua2aa19.ufs.sh/f/V1iaeQg5P6aEAZUbAZljdGH0Y1UkaP6gmJqQVWeBvt2XzxN5"
+
+```
+<SheetContent className="gap-0 overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Fazer reserva</SheetTitle>
+        </SheetHeader>
+        {/* Calenadério */}
+        <div className="border-b border-solid py-5">
+          <Calendar
+            mode="single"
+            locale={ptBR}
+            selected={selectedDay}
+            onSelect={handleDateSelect}
+            fromDate={new Date()}
+            styles={{
+              head_cell: {
+                width: "100%",
+                textTransform: "capitalize",
+              },
+              cell: {
+                width: "100%",
+              },
+              button: {
+                width: "100%",
+              },
+              nav_button_previous: {
+                width: "32px",
+                height: "32px",
+              },
+              nav_button_next: {
+                width: "32px",
+                height: "32px",
+              },
+              caption: {
+                textTransform: "capitalize",
+              },
+            }}
+          />
+        </div>
+
+        {/* Horários */}
+        {selectedDay && (
+          <div className="flex gap-3 overflow-x-auto border-b border-solid px-5 [&::-webkit-scrollbar]:hidden">
+            {TIME_LIST.map((time) => (
+              <Button
+                onClick={() => handleTimeSelect(time)}
+                variant={selectedTime === time ? "default" : "outline"}
+                className="rounded-full"
+                key={time}
+              >
+                {time}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        {/* Card com detalhes da reserva */}
+        {selectedTime && selectedDay && (
+          <Card>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold">{service.name}</h2>
+                <p className="text-sm font-bold">
+                  {Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }).format(Number(service.price))}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h2 className="text- text-sm">Data</h2>
+                <p className="text-sm">
+                  {format(selectedDay, "dd 'de' MMMM", {
+                    locale: ptBR,
+                  })}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h2 className="text- text-sm">Horário</h2>
+                <p className="text-sm">{selectedTime}</p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h2 className="text- text-sm">Barbearia</h2>
+                <p className="text-sm">{barberShop.name}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <SheetFooter className="mt-5 px-5">
+          <SheetClose asChild>
+            <Button
+              onClick={handleCreateBooking}
+              disabled={!selectedDay || !selectedTime}
+            >
+              Confirmar
+            </Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+```

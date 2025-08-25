@@ -12,18 +12,7 @@ export const createBooking = async ({ serviceId, userId, date }) => {
   }
 
   try {
-    // Converter string ISO para objeto Date preservando o horário
-    const isoDate = new Date(date)
-
-    // Extrair componentes UTC para preservar o horário original
-    const year = isoDate.getUTCFullYear()
-    const month = isoDate.getUTCMonth()
-    const day = isoDate.getUTCDate()
-    const hours = isoDate.getUTCHours()
-    const minutes = isoDate.getUTCMinutes()
-
-    // Criar uma nova data usando os componentes UTC
-    const bookingDate = new Date(year, month, day, hours, minutes)
+    const bookingDate = new Date(date)
 
     const booking = await db.booking.create({
       data: {
@@ -37,6 +26,7 @@ export const createBooking = async ({ serviceId, userId, date }) => {
     revalidatePath("/")
     revalidatePath("/barbershops")
     revalidatePath("/barbershops/[id]")
+    revalidatePath("/bookings")
     return { success: true, booking }
   } catch (error) {
     console.error("Erro ao criar agendamento:", error)

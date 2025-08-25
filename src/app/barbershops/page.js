@@ -35,18 +35,20 @@ const BarbeShopPage = async ({ searchParams }) => {
   return (
     <>
       <Header />
-      <div className="my-6 px-5">
-        <Search />
-      </div>
-      <div className="mb-3 px-6">
-        <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-          Resultados para &quot;{params?.title || params?.service}
-          &quot;
-        </h2>
-        <div className="grid grid-cols-2 gap-4">
-          {barbershops.map((barbershop) => (
-            <BarberShopItem key={barbershop.id} barberShop={barbershop} />
-          ))}
+      <div className="lg:boxed">
+        <div className="my-6 px-5">
+          <Search />
+        </div>
+        <div className="mb-3 px-6">
+          <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+            Resultados para &quot;{params?.title || params?.service}
+            &quot;
+          </h2>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {barbershops.map((barbershop) => (
+              <BarberShopItem key={barbershop.id} barberShop={barbershop} />
+            ))}
+          </div>
         </div>
       </div>
     </>
