@@ -70,7 +70,7 @@
 
 @layer utilities {
   .boxed {
-    @apply mx-auto w-full max-w-[1550px];
+    @apply mx-auto w-full max-w-[1024px];
   }
 }
 
